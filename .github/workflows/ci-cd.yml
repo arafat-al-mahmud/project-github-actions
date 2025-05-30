@@ -54,10 +54,12 @@ jobs:
       - name: Setup environment
         run: |
           echo "Setting up deployment environment..."
-          # Install production dependencies
-          npm ci --production
-           # Build the application
+          # Install all dependencies (including devDependencies)
+          npm ci
+          # Build the application
           npm run build
+          # Prune devDependencies after build
+          npm prune --production
 
       - name: Deploy application
         run: |
