@@ -54,27 +54,23 @@ jobs:
       - name: Setup environment
         run: |
           echo "Setting up deployment environment..."
-          # Install PM2 globally
-          sudo npm install -g pm2
-          
-          # Build the application
-          npm run build
-          
           # Install production dependencies
           npm ci --production
+           # Build the application
+          npm run build
 
       - name: Deploy application
         run: |
           echo "Deploying application..."
           # Stop existing instance if running
-          pm2 stop node-express-app || true
-          pm2 delete node-express-app || true
+          npx pm2 stop node-express-app || true
+          npx pm2 delete node-express-app || true
           
           # Start the application with PM2
           npm run deploy
           
           # Save PM2 process list
-          pm2 save
+          npx pm2 save
           
           # Wait for the server to start
           sleep 10
@@ -87,4 +83,4 @@ jobs:
           curl -f http://localhost:3000 || exit 1
           
           # Check PM2 status
-          pm2 status
+          npx pm2 status
