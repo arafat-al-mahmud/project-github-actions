@@ -37,8 +37,9 @@ jobs:
           name: test-results
 
       - name: Display the artifact content
-        run: echo "Test results:"
-        run: cat test-results.txt
+        run: |
+          echo "Test results:"
+          cat test-results.txt
 
       - name: Setup environment
         run: |
