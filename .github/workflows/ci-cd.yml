@@ -1,0 +1,79 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run check > test-results.txt 2>&1
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results.txt
+
+  deploy:
+    runs-on: self-hosted
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+
+      - name: Display the artifact content
+        run: echo "Test results:"
+        run: cat test-results.txt
+
+      - name: Setup environment
+        run: |
+          echo "Setting up deployment environment..."
+          # Install PM2 globally
+          sudo npm install -g pm2
+          
+          # Build the application
+          npm run build
+          
+          # Install production dependencies
+          npm ci --production
+
+      - name: Deploy application
+        run: |
+          echo "Deploying application..."
+          # Stop existing instance if running
+          pm2 stop node-express-app || true
+          pm2 delete node-express-app || true
+          
+          # Start the application with PM2
+          npm run deploy
+          
+          # Save PM2 process list
+          pm2 save
+          
+          # Wait for the server to start
+          sleep 10
+
+      - name: Verify deployment
+        run: |
+          echo "Verifying deployment..."
+          # Check if the server is responding
+          curl -f http://localhost:3000/api || exit 1
+          curl -f http://localhost:3000 || exit 1
+          
+          # Check PM2 status
+          pm2 status
