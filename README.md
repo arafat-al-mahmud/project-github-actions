@@ -45,5 +45,9 @@ npm start
 
 2. **Default Port**: By Default this application will run on port 3000
 
+## Challenges and Solutions
+
+See [CHALLENGES.md](./CHALLENGES.md) for a list of challenges encountered and solutions applied during the CI/CD pipeline setup.
+
 
 
